@@ -1,0 +1,26 @@
+{
+  "backend": "OpenList v4.2.6 Local and WebDav test fixtures; individual cloud drives not tested",
+  "passed": 5,
+  "checks": [
+    {
+      "check": "configured user root spans mounts",
+      "result": "PASS"
+    },
+    {
+      "check": "enumerate Local and WebDAV mounts through one account",
+      "result": "PASS"
+    },
+    {
+      "check": "recursive filename search crosses storage drivers",
+      "result": "PASS"
+    },
+    {
+      "check": "byte-identical signed proxy download through Local",
+      "result": "PASS"
+    },
+    {
+      "check": "byte-identical signed proxy download through WebDav",
+      "result": "PASS"
+    }
+  ]
+}
