@@ -1,0 +1,50 @@
+{
+  "backend": "OpenList Local fixture; cloud storage drivers not individually verified",
+  "checks": [
+    {
+      "check": "MCP stdio initialize using saved .mcp.json command",
+      "result": "PASS"
+    },
+    {
+      "check": "four tools with correct download write annotation",
+      "result": "PASS"
+    },
+    {
+      "check": "verified read access to live OpenList mount",
+      "result": "PASS"
+    },
+    {
+      "check": "Chinese directory listing",
+      "result": "PASS"
+    },
+    {
+      "check": "recursive Chinese filename search without search index",
+      "result": "PASS"
+    },
+    {
+      "check": "byte-identical signed proxy download: 你好 世界.txt",
+      "result": "PASS"
+    },
+    {
+      "check": "refuse overwriting existing file: 你好 世界.txt",
+      "result": "PASS"
+    },
+    {
+      "check": "byte-identical signed proxy download: 中文资料/会议纪要.md",
+      "result": "PASS"
+    },
+    {
+      "check": "refuse overwriting existing file: 中文资料/会议纪要.md",
+      "result": "PASS"
+    },
+    {
+      "check": "reject traversal outside configured mount",
+      "result": "PASS"
+    },
+    {
+      "check": "upstream failure remains an MCP error",
+      "result": "PASS"
+    }
+  ],
+  "passed": 11
+}
