@@ -55,7 +55,7 @@ def build_server(settings: Settings, client: OpenListClient | None = None) -> Fa
         """Report configuration metadata and verify read access to the configured OpenList mount."""
         result = settings.public_status()
         result["verified"] = False
-        if settings.token:
+        if settings.configured:
             await safe(backend.list_files("", 1, 1))
             result["verified"] = True
         return result
@@ -89,7 +89,7 @@ def main() -> None:
         raise SystemExit(1) from None
     if args.check_config:
         print(json.dumps(settings.public_status(), ensure_ascii=False))
-        raise SystemExit(0 if settings.token else 1)
+        raise SystemExit(0 if settings.configured else 1)
     build_server(settings).run(transport="stdio")
 
 

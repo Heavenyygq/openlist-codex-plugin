@@ -24,21 +24,76 @@ class OpenListClient:
             timeout=httpx.Timeout(60, connect=10),
             follow_redirects=False,
             transport=transport,
-            headers={"User-Agent": "openlist-codex/0.1.0", "Accept-Encoding": "identity"},
+            headers={"User-Agent": "openlist-codex/0.1.2", "Accept-Encoding": "identity"},
         )
         self._download_lock = asyncio.Lock()
+        self._login_lock = asyncio.Lock()
+        self._token = settings.token
+        self._login_failed = False
 
     async def close(self) -> None:
         await self.http.aclose()
 
+    async def _auth_token(self) -> str:
+        if self.settings.browser_session_file:
+            from .browser_session import BrowserSessionError, load_session
+            try:
+                state = load_session(self.settings.browser_session_file, self.settings.url)
+            except BrowserSessionError:
+                raise PluginError("Cannot read browser association; reopen the OpenList association window.") from None
+            if not state:
+                raise PluginError("OpenList browser session is not linked; log in through the association window.")
+            return state[1]
+        if self._token:
+            return self._token
+        if not self.settings.configured:
+            raise PluginError("Configure OPENLIST_USERNAME and OPENLIST_PASSWORD, or OPENLIST_TOKEN_FILE, for a read-only user.")
+        async with self._login_lock:
+            if self._token:
+                return self._token
+            if self._login_failed:
+                raise PluginError("Account login previously failed; check credentials locally and restart the plugin before retrying.")
+            self._login_failed = True
+            password_hash = hashlib.sha256((self.settings.password + "-https://github.com/alist-org/alist").encode()).hexdigest()
+            payload = {"username": self.settings.username, "password": password_hash, "otp_code": self.settings.otp_code}
+            try:
+                async with self.http.stream("POST", self.settings.url + "/api/auth/login/hash", json=payload) as response:
+                    if response.status_code != 200:
+                        raise PluginError("OpenList login failed; check credentials, two-factor code and server availability locally.")
+                    chunks = []
+                    size = 0
+                    async for chunk in response.aiter_bytes():
+                        size += len(chunk)
+                        if size > 65536:
+                            raise PluginError("OpenList login response is too large.")
+                        chunks.append(chunk)
+                    envelope = json.loads(b"".join(chunks))
+            except (httpx.HTTPError, OSError, ValueError, UnicodeError):
+                raise PluginError("Cannot complete OpenList login; check connectivity and server configuration locally.") from None
+            if not isinstance(envelope, dict):
+                raise PluginError("OpenList returned an invalid login response.")
+            code = envelope.get("code")
+            if code == 402:
+                raise PluginError("OpenList requires a valid six-digit two-factor code; set OPENLIST_OTP_CODE locally and restart.")
+            if code != 200:
+                raise PluginError("OpenList account login denied; check username, password or lockout status locally.")
+            data = envelope.get("data")
+            token = data.get("token") if isinstance(data, dict) else None
+            if not isinstance(token, str) or not token or len(token) > 8192 or any(ord(ch) < 32 or ord(ch) == 127 for ch in token):
+                raise PluginError("OpenList returned an invalid login token.")
+            self._token = token
+            self._login_failed = False
+            return token
+
     async def _api(self, endpoint: str, payload: dict) -> dict:
-        if not self.settings.token:
-            raise PluginError("Configure OPENLIST_TOKEN_FILE with a dedicated read-only OpenList user's token.")
+        token = await self._auth_token()
         try:
             async with self.http.stream(
                 "POST", self.settings.url + "/api/fs/" + endpoint,
-                headers={"Authorization": self.settings.token}, json=payload,
+                headers={"Authorization": token}, json=payload,
             ) as response:
+                if response.status_code == 401 and self.settings.username:
+                    self._token = ""
                 if response.status_code in (401, 403):
                     raise PluginError("OpenList denied access; check your token and read permissions.")
                 if response.status_code != 200:
@@ -59,6 +114,8 @@ class OpenListClient:
         if not isinstance(envelope, dict):
             raise PluginError("OpenList returned an invalid API envelope.")
         code = envelope.get("code")
+        if code == 401 and self.settings.username:
+            self._token = ""
         if code in (401, 403):
             raise PluginError("OpenList denied access; check your token, mount password and read permissions.")
         if code != 200:

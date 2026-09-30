@@ -4,14 +4,35 @@
 
 插件使用 OpenList 的统一文件 API，不绑定夸克等某个网盘，也不直接收集网盘 Cookie。具体驱动的登录、会话维护、套餐限制和代理能力由用户的 OpenList 管理。能在 OpenList 中正常浏览并通过本机 Web 代理下载的挂载可以使用本插件；不保证每个存储驱动或每种下载模式均兼容。
 
-这是 `0.1.0` 社区预发布版，非 OpenList 或 OpenAI 官方产品，尚未进入 Codex 官方精选库。单个网盘需要用户自行验证；已执行检查记录见 [验证说明](docs/VALIDATION.md)。
+这是 `0.1.2` 社区预发布版，非 OpenList 或 OpenAI 官方产品，尚未进入 Codex 官方精选库。单个网盘需要用户自行验证；已执行检查记录见 [验证说明](docs/VALIDATION.md)。
+
+## 网页登录关联（推荐）
+
+Windows 用户下载完整插件 ZIP、解压后双击 `关联OpenList.cmd`，填写自己的 OpenList 地址并选择 Edge 或 Chrome。脚本会安装插件并打开真实 OpenList 网页；直接在网页中登录，验证成功后自动启动 Codex。无需把账号密码提供给插件启动脚本，也无需复制 Token。
+
+关联窗口使用独立的浏览器配置，首次需要登录；后续打开同一入口可复用其未过期会话。不能自动复用普通浏览器里已打开的 OpenList 页面。保持关联窗口打开时会同步退出；关闭窗口保留最近已验证会话，服务端退出、过期或重启后需要重新关联。Windows 的插件会话副本使用当前用户 DPAPI 保护；Linux/macOS 为权限 0600 文件。浏览器配置仍保存 OpenList 自己的网页登录状态，属于该浏览器的本地数据。
+
+需要 Python 3.11+、Codex CLI 和系统 Edge/Chrome。Windows 脚本可安装 uv；其他平台可在源码目录运行：
+
+```bash
+uv sync --locked --group browser
+codex plugin marketplace add .
+codex plugin add openlist@heavenyygq-openlist
+uv run --locked --group browser openlist-codex-link --url https://your-openlist.example --browser chrome --launch-codex
+```
+
+在支持浏览器关联的本地客户端中，插件自动读取同一操作系统用户的关联状态；云端 Codex 无法读取你电脑的浏览器配置。详见 [网页关联说明](docs/BROWSER_LINK.md)。
+
+## 其他登录方式
+
+保留 `OPENLIST_TOKEN_FILE` / `OPENLIST_TOKEN`，以及 `OPENLIST_USERNAME` + `OPENLIST_PASSWORD` / `OPENLIST_PASSWORD_FILE` 的本机配置方式。可选六位 `OPENLIST_OTP_CODE`。显式账号、Token 和网页关联配置互斥；账号模式的登录 Token 仅缓存在进程内。密码文件会原样读取，不要附加换行。登录失败不会自动反复尝试，修正配置后重启。
 
 ## 准备与配置
 
 - Python 3.11+、uv，以及支持 `codex plugin` 的 Codex。
 - 自己控制的 OpenList，已配置所需网盘。
 - 限制到所需目录的只读普通用户；启用存储的 `Web 代理` 和下载签名，保持外部下载代理 URL 为空。
-- 将该用户的 OpenList 登录 Token 保存到权限 `0600` 的本机文件；不要使用管理员 Token，也不要把凭据放进聊天、Git 或命令历史。
+- 若使用 Token 登录，将该用户的 OpenList 登录 Token 保存到权限 `0600` 的本机文件；不要使用管理员 Token，也不要把凭据放进聊天、Git 或命令历史。
 
 | 配置 | 默认或说明 |
 | --- | --- |
@@ -49,7 +70,7 @@ codex plugin add openlist@heavenyygq-openlist
 公开仓库和版本标签发布成功后，可使用：
 
 ```bash
-codex plugin marketplace add Heavenyygq/openlist-codex-plugin --ref v0.1.0
+codex plugin marketplace add Heavenyygq/openlist-codex-plugin --ref v0.1.2
 codex plugin add openlist@heavenyygq-openlist
 ```
 

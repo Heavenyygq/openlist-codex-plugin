@@ -1,0 +1,42 @@
+{
+  "mcpServers": {
+    "openlist": {
+      "type": "stdio",
+      "command": "uv",
+      "args": [
+        "run",
+        "--no-cache",
+        "--locked",
+        "openlist-codex"
+      ],
+      "cwd": ".",
+      "env_vars": [
+        "OPENLIST_URL",
+        "OPENLIST_TOKEN_FILE",
+        "OPENLIST_TOKEN",
+        "OPENLIST_ROOT",
+        "OPENLIST_PATH_PASSWORD",
+        "OPENLIST_PATH_PASSWORD_FILE",
+        "OPENLIST_DOWNLOAD_DIR",
+        "OPENLIST_MAX_DOWNLOAD_BYTES",
+        "HTTP_PROXY",
+        "HTTPS_PROXY",
+        "ALL_PROXY",
+        "NO_PROXY",
+        "http_proxy",
+        "https_proxy",
+        "all_proxy",
+        "no_proxy",
+        "SSL_CERT_FILE",
+        "SSL_CERT_DIR",
+        "OPENLIST_USERNAME",
+        "OPENLIST_PASSWORD",
+        "OPENLIST_PASSWORD_FILE",
+        "OPENLIST_OTP_CODE",
+        "OPENLIST_BROWSER_SESSION_FILE"
+      ],
+      "startup_timeout_sec": 60,
+      "tool_timeout_sec": 120
+    }
+  }
+}

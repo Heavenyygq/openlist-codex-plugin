@@ -1,0 +1,33 @@
+{
+  "name": "openlist",
+  "version": "0.1.2",
+  "description": "通过用户自己的 OpenList 读取各种已挂载网盘，列出、搜索和下载文件。社区插件。",
+  "author": {
+    "name": "Heavenyygq"
+  },
+  "license": "MIT",
+  "keywords": [
+    "openlist",
+    "cloud-drive",
+    "files",
+    "mcp"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "OpenList 网盘（社区插件）",
+    "shortDescription": "查找和下载 OpenList 已挂载网盘中的文件",
+    "longDescription": "连接用户自行配置的 OpenList，通过统一文件接口浏览各种挂载的网盘或存储。支持状态检查、分页列表、有预算限制的文件名搜索及代理下载；网盘登录与驱动由 OpenList 管理。",
+    "developerName": "Heavenyygq",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "检查 OpenList 连接状态",
+      "列出 OpenList 的网盘挂载",
+      "搜索 OpenList 中的项目资料"
+    ]
+  }
+}

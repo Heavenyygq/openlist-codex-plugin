@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "openlist-codex"
-version = "0.1.0"
+version = "0.1.2"
 description = "Local Codex MCP plugin for files across user-controlled OpenList mounts"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -13,8 +13,10 @@ dependencies = ["mcp>=1.29,<2", "httpx>=0.28.1,<0.29"]
 
 [project.scripts]
 openlist-codex = "openlist_codex.server:main"
+openlist-codex-link = "openlist_codex.browser_link:main"
 
 [dependency-groups]
+browser = ["playwright>=1.50,<2"]
 dev = ["pytest>=8,<9", "pytest-asyncio>=1,<2", "ruff>=0.12,<1", "build>=1.2,<2"]
 
 [tool.hatch.build.targets.wheel]
